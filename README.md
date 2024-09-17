@@ -12,7 +12,7 @@ Weather-API is a Node.js application that provides weather data through a RESTfu
 ## Installation
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-username/Weather-API.git
+    git clone https://github.com/isandysingh1/Weather-API.git
     cd Weather-API/Backend
     ```
 
