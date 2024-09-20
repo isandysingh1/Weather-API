@@ -89,12 +89,55 @@ export const getMultipleWeatherData = async (req, res, next) => {
     }
 };
 
+// Find max temperature for all stations within a date range => GET /api/weather/max-temperature
+export const getMaxTemperature = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        // Ensure the dates are valid
+        if (!startDate || !endDate) {
+            return next(new ErrorHandler('Invalid date range. Please provide both start and end dates.', 400));
+        }
+
+        // Convert string dates to Date objects
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        // Check if the start and end dates are valid dates
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return next(new ErrorHandler('Invalid date format. Please use YYYY-MM-DD format.', 400));
+        }
+
+        // Query to find the maximum temperature for all stations in the given date range
+        const maxTemperatureRecord = await Weather.find({
+            time: { $gte: start, $lte: end }  // Filter by the time range
+        })
+        .sort({ temperature: -1 })  // Sort by temperature in descending order
+        .limit(1)  // Limit to one result (the highest temperature)
+        .select('deviceName time temperature')  // Select only deviceName, time, and temperature fields
+        .lean();  // Return a plain JavaScript object
+
+        // If no data found, return a 404 error
+        if (!maxTemperatureRecord || maxTemperatureRecord.length === 0) {
+            return next(new ErrorHandler('No temperature data found for the given date range.', 404));
+        }
+        // Return the maximum temperature record
+        res.status(200).json({
+            success: true,
+            data: maxTemperatureRecord
+        });
+    } catch (error) {
+        console.error('Error in getMaxTemperature:', error);
+        next(new ErrorHandler('Server error', 500));
+    }
+};
+
 // Find specific weather data by station and date/time => GET /api/weather/:deviceName/:dateTime
 export const getWeatherByStationAndDateTime = async (req, res, next) => {
     try {
         const { deviceName, dateTime } = req.params;
         const weather = await Weather.findOne({ deviceName, time: new Date(dateTime) })
-            .select('temperature atmosphericPressure solarRadiation precipitation')
+            .select('temperature deviceName atmosphericPressure solarRadiation precipitation time')
             .exec();
 
         if (!weather) {
@@ -106,24 +149,6 @@ export const getWeatherByStationAndDateTime = async (req, res, next) => {
     }
 }
 
-// Find max temperature for all stations within a date range => GET /api/weather/max-temperature
-export const getMaxTemperature = async (req, res, next) => {
-    try {
-        const { startDate, endDate } = req.query;
-        const maxTemperature = await Weather.find({ time: { $gte: new Date(startDate), $lte: new Date(endDate) } })
-            .sort({ 'temperature': -1 })
-            .limit(1)
-            .select('deviceName time temperature')
-            .exec();
-
-        if (!maxTemperature.length) {
-            return next(new ErrorHandler('No data found', 404));
-        }
-        res.status(200).json(maxTemperature[0]);
-    } catch (error) {
-        next(new ErrorHandler('Server error', 500));
-    }
-};
 
 // Update weather data => PUT /api/weather/:id
 export const updateWeatherData = async (req, res, next) => {
@@ -176,3 +201,4 @@ export const getHumidityRainfallData = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+

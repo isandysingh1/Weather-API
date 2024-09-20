@@ -2,11 +2,10 @@ import express from 'express';
 const router = express.Router();
 import { getWeatherById, insertWeatherData, getMultipleWeatherData, insertMultipleWeatherData, updateWeatherData, deleteWeatherData, getTemperatureData, getHumidityRainfallData, getWeatherByStationAndDateTime, getMaxTemperature, updatePrecipitation, getMaxPrecipitation } from '../controllers/weatherController.js';
 
-
+router.route('/weather/max-temperature').get(getMaxTemperature);
 router.route('/weather/:id').get(getWeatherById);
 router.route('/weather/multiple').get(getMultipleWeatherData);
-router.route('/weather/station-datetime/:deviceName/:dateTime').get(getWeatherByStationAndDateTime);
-router.route('/weather/max-temperature').get(getMaxTemperature);
+router.route('/weather/:deviceName/:dateTime').get(getWeatherByStationAndDateTime);
 router.route('/weather').post(insertWeatherData);
 router.route('/weather/multiple').post(insertMultipleWeatherData);
 router.route('/weather/:id').put(updateWeatherData);
