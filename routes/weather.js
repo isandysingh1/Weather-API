@@ -1,20 +1,26 @@
 import express from 'express';
 const router = express.Router();
-import { getWeatherById, insertWeatherData, getMultipleWeatherData, insertMultipleWeatherData, updateWeatherData, deleteWeatherData, getTemperatureData, getHumidityRainfallData, getWeatherByStationAndDateTime, getMaxTemperature, updatePrecipitation, getMaxPrecipitation } from '../controllers/weatherController.js';
+import { getWeatherById, insertWeatherData, insertMultipleWeatherData, updateWeatherData, deleteWeatherData,  getHumidityRainfallData, getWeatherByStationAndDateTime, getMaxTemperature, updatePrecipitation, getMaxPrecipitation } from '../controllers/weatherController.js';
 
+
+// Specific routes with more parameters
 router.route('/weather/max-temperature').get(getMaxTemperature);
-router.route('/weather/:id').get(getWeatherById);
-router.route('/weather/multiple').get(getMultipleWeatherData);
+router.route('/weather/:deviceName/max-precipitation').get(getMaxPrecipitation);
 router.route('/weather/:deviceName/:dateTime').get(getWeatherByStationAndDateTime);
-router.route('/weather').post(insertWeatherData);
-router.route('/weather/multiple').post(insertMultipleWeatherData);
+
+// General routes
+router.route('/weather/humidity-rainfall').get(getHumidityRainfallData);
+
+// Routes with :id parameter
+router.route('/weather/:id').get(getWeatherById);
 router.route('/weather/:id').put(updateWeatherData);
 router.route('/weather/:id/precipitation').put(updatePrecipitation);
 router.route('/weather/:id').delete(deleteWeatherData);
-router.route('/weather/temperature').get(getTemperatureData);
-router.route('/weather/humidity-rainfall').get(getHumidityRainfallData);
 
-router.route('/weather/:deviceName/max-precipitation').get(getMaxPrecipitation);
+// Data insertion routes
+router.route('/weather').post(insertWeatherData);
+router.route('/weather/multiple').post(insertMultipleWeatherData);
+
 
 
 

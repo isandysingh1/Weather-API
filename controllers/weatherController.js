@@ -79,16 +79,6 @@ export const getMaxPrecipitation = async (req, res, next) => {
     }
 };
 
-// Get Multiple Weather Data => GET /api/weather/multiple
-export const getMultipleWeatherData = async (req, res, next) => {
-    try {
-        const weather = await Weather.find();
-        res.status(200).json(weather);
-    } catch (error) {
-        next(new ErrorHandler('Server error', 500));
-    }
-};
-
 // Find max temperature for all stations within a date range => GET /api/weather/max-temperature
 export const getMaxTemperature = async (req, res, next) => {
     try {
@@ -136,18 +126,47 @@ export const getMaxTemperature = async (req, res, next) => {
 export const getWeatherByStationAndDateTime = async (req, res, next) => {
     try {
         const { deviceName, dateTime } = req.params;
-        const weather = await Weather.findOne({ deviceName, time: new Date(dateTime) })
-            .select('temperature deviceName atmosphericPressure solarRadiation precipitation time')
-            .exec();
 
+        // Ensure the dateTime is a valid date
+        const queryDate = new Date(dateTime);
+        if (isNaN(queryDate.getTime())) {
+            return next(new ErrorHandler('Invalid date format. Please use YYYY-MM-DDTHH:mm:ss format.', 400));
+        }
+
+        console.log(`Querying for deviceName: ${deviceName}, dateTime: ${queryDate}`);
+
+        // Query the database for the weather data based on deviceName and dateTime
+        const weather = await Weather.findOne({
+            deviceName: deviceName,
+            time: queryDate
+        })
+        .select({
+            deviceName: 1,
+            temperature: 1,
+            atmosphericPressure: 1,
+            solarRadiation: 1,
+            precipitation: 1,
+            time: 1 
+        })
+        .exec();
+
+        console.log(`Query result: ${weather}`);
+
+        // If no data found, return a 404 error
         if (!weather) {
             return next(new ErrorHandler('No data found', 404));
         }
-        res.status(200).json(weather);
+
+        // Return the weather data
+        res.status(200).json({
+            success: true,
+            data: weather
+        });
     } catch (error) {
+        console.error('Error fetching weather data by station and date/time:', error);
         next(new ErrorHandler('Server error', 500));
     }
-}
+};
 
 
 // Update weather data => PUT /api/weather/:id
@@ -182,16 +201,6 @@ export const deleteWeatherData = async (req, res) => {
     }
 }
 
-// Get Temperature data => GET /api/weather/temperature
-export const getTemperatureData = async (req, res) => {
-    try {
-        const weather = await Weather.find();
-        res.status(200).json(weather);
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-};
-
 // Get Humidity and Rainfall data => GET /api/weather/humidity-rainfall
 export const getHumidityRainfallData = async (req, res) => {
     try {
@@ -201,4 +210,3 @@ export const getHumidityRainfallData = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
