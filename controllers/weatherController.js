@@ -154,7 +154,7 @@ export const getWeatherByStationAndDateTime = async (req, res, next) => {
             'Time': 1 
         })
         .lean();
-        
+
         // If no data found, return a 404 error
         if (!weather) {
             return next(new ErrorHandler('No data found', 404));
@@ -204,13 +204,3 @@ export const deleteWeatherData = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 }
-
-// Get Humidity and Rainfall data => GET /api/weather/humidity-rainfall
-export const getHumidityRainfallData = async (req, res) => {
-    try {
-        const weather = await Weather.find({}).sort({ 'Humidity (%)': 1, 'Precipitation mm/h': 1 });
-        res.status(200).json(weather);
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-};
