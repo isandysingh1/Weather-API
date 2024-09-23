@@ -122,36 +122,39 @@ export const getMaxTemperature = async (req, res, next) => {
     }
 };
 
-// Find specific weather data by station and date/time => GET /api/weather/:deviceName/:dateTime
+// Find specific weather data by station and date/time => GET /api/weather/:deviceName/:time
 export const getWeatherByStationAndDateTime = async (req, res, next) => {
     try {
-        const { deviceName, dateTime } = req.params;
+        const { deviceName, time } = req.params;
 
-        // Ensure the dateTime is a valid date
-        const queryDate = new Date(dateTime);
+        // Trim the time parameter to remove any newline or extra whitespace
+        const trimmedTime = time.trim();
+
+        // Ensure the trimmed time is a valid date
+        const queryDate = new Date(trimmedTime);
         if (isNaN(queryDate.getTime())) {
             return next(new ErrorHandler('Invalid date format. Please use YYYY-MM-DDTHH:mm:ss format.', 400));
         }
 
-        console.log(`Querying for deviceName: ${deviceName}, dateTime: ${queryDate}`);
-
-        // Query the database for the weather data based on deviceName and dateTime
+        // Query the database for the weather data based on deviceName and time
         const weather = await Weather.findOne({
-            deviceName: deviceName,
-            time: queryDate
+            'Device Name': deviceName,
+            'Time': queryDate
         })
         .select({
-            deviceName: 1,
-            temperature: 1,
-            atmosphericPressure: 1,
-            solarRadiation: 1,
-            precipitation: 1,
-            time: 1 
+            'Device Name': 1,
+            'Temperature (C)': 1,
+            'Atmospheric Pressure (kPa)': 1,
+            'Solar Radiation (W/m2)': 1,
+            'Precipitation (mm/h)': 1,
+            'Vapor Pressure (kPa)': 1,
+            'Humidity (%)': 1,
+            'Max Wind Speed (m/s)': 1,
+            'Wind Direction (°)': 1,
+            'Time': 1 
         })
-        .exec();
-
-        console.log(`Query result: ${weather}`);
-
+        .lean();
+        
         // If no data found, return a 404 error
         if (!weather) {
             return next(new ErrorHandler('No data found', 404));
@@ -167,6 +170,7 @@ export const getWeatherByStationAndDateTime = async (req, res, next) => {
         next(new ErrorHandler('Server error', 500));
     }
 };
+
 
 
 // Update weather data => PUT /api/weather/:id

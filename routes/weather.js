@@ -6,7 +6,7 @@ import { getWeatherById, insertWeatherData, insertMultipleWeatherData, updateWea
 // Specific routes with more parameters
 router.route('/weather/max-temperature').get(getMaxTemperature);
 router.route('/weather/:deviceName/max-precipitation').get(getMaxPrecipitation);
-router.route('/weather/:deviceName/:dateTime').get(getWeatherByStationAndDateTime);
+router.route('/weather/:deviceName/:time').get(getWeatherByStationAndDateTime);
 
 // General routes
 router.route('/weather/humidity-rainfall').get(getHumidityRainfallData);
