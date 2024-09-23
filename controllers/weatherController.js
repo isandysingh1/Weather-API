@@ -204,3 +204,45 @@ export const deleteWeatherData = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 }
+
+// Get weather data by temperature and humidity => GET /api/weather/temperature-humidity
+export const getWeatherByTemperatureAndHumidity = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        // Validate dates
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return next(new ErrorHandler('Invalid date format. Please use YYYY-MM-DDTHH:mm:ss format.', 400));
+        }
+
+        // Querying the database using indexes
+        const results = await Weather.find({
+            time: { $gte: start, $lte: end }
+        })
+        .select({ 
+            'deviceName': 1, 
+            'temperature': 1, 
+            'humidity': 1, 
+            'precipitation': 1, 
+            'time': 1 
+        })
+        .exec();
+
+        console.log(results);
+
+        if (results.length === 0) {
+            return next(new ErrorHandler('No data found for the specified date range', 404));
+        }
+
+        res.status(200).json({
+            success: true,
+            data: results
+        });
+    } catch (error) {
+        console.error('Error fetching weather data:', error);
+        next(new ErrorHandler('Server error', 500));
+    }
+};
+
