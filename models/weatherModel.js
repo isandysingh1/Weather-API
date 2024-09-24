@@ -3,35 +3,35 @@ import mongoose from 'mongoose';
 // Define the weather data schema
 const weatherSchema = new mongoose.Schema({
   deviceName: {
-    type: String,  // The name of the sensor device
+    type: String,
     required: [true, 'Device name is required'],
     alias: 'Device Name'
   },
   precipitation: {
-    type: Number, // Precipitation measured in mm/h
+    type: Number,
     required: [true, 'Precipitation is required'],
     double: true,
-    alias: 'Precipitation mm/h'
+    alias: 'Precipitation (mm/h)'
   },
   time: {
-    type: Date,   // Timestamp for the data
+    type: Date,
     required: [true, 'Time is required'],
     alias: 'Time'
   },
   latitude: {
-    type: Number, // Latitude of the sensor location
+    type: Number,
     required: [true, 'Latitude is required'],
     double: true,
     alias: 'Latitude'
   },
   longitude: {
-    type: Number, // Longitude of the sensor location
+    type: Number,
     required: [true, 'Longitude is required'],
     double: true,
     alias: 'Longitude'
   },
   temperature: {
-    type: Number, // Temperature measured in °C
+    type: Number,
     required: [true, 'Temperature is required'],
     double: true,
     validate: {
@@ -43,30 +43,30 @@ const weatherSchema = new mongoose.Schema({
     alias: 'Temperature (°C)'
   },
   atmosphericPressure: {
-    type: Number, // Atmospheric Pressure measured in kPa
+    type: Number,
     required: [true, 'Atmospheric pressure is required'],
     double: true,
     alias: 'Atmospheric Pressure (kPa)'
   },
   maxWindSpeed: {
-    type: Number, // Maximum wind speed measured in m/s
+    type: Number,
     required: [true, 'Maximum wind speed is required'],
     double: true,
     alias: 'Max Wind Speed (m/s)'
   },
   solarRadiation: {
-    type: Number, // Solar Radiation measured in W/m²
+    type: Number,
     required: [true, 'Solar radiation is required'],
     alias: 'Solar Radiation (W/m2)'
   },
   vaporPressure: {
-    type: Number, // Vapor Pressure measured in kPa
+    type: Number,
     required: [true, 'Vapor pressure is required'],
     double: true,
     alias: 'Vapor Pressure (kPa)'
   },
   humidity: {
-    type: Number, // Humidity percentage (%)
+    type: Number,
     required: [true, 'Humidity is required'],
     double: true,
     validate: {
@@ -78,7 +78,7 @@ const weatherSchema = new mongoose.Schema({
     alias: 'Humidity (%)'
   },
   windDirection: {
-    type: Number, // Wind direction in degrees (°)
+    type: Number,
     required: [true, 'Wind direction is required'],
     double: true,
     alias: 'Wind Direction (°)'

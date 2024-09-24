@@ -100,17 +100,22 @@ export const getMaxTemperature = async (req, res, next) => {
 
         // Query to find the maximum temperature for all stations in the given date range
         const maxTemperatureRecord = await Weather.find({
-            time: { $gte: start, $lte: end }  // Filter by the time range
+            'Time': { $gte: start, $lte: end }  // Filter by the time range
         })
-        .sort({ temperature: -1 })  // Sort by temperature in descending order
+        .sort({ 'Temperature (°C)': -1 })  // Sort by temperature in descending order
         .limit(1)  // Limit to one result (the highest temperature)
-        .select('deviceName time temperature')  // Select only deviceName, time, and temperature fields
-        .lean();  // Return a plain JavaScript object
+        .select({
+            'Device Name': 1,
+            'Time': 1,
+            'Temperature (°C)': 1
+        })  
+        .lean();
 
         // If no data found, return a 404 error
         if (!maxTemperatureRecord || maxTemperatureRecord.length === 0) {
             return next(new ErrorHandler('No temperature data found for the given date range.', 404));
         }
+
         // Return the maximum temperature record
         res.status(200).json({
             success: true,
@@ -171,40 +176,6 @@ export const getWeatherByStationAndDateTime = async (req, res, next) => {
     }
 };
 
-
-
-// Update weather data => PUT /api/weather/:id
-export const updateWeatherData = async (req, res, next) => {
-    try {
-        const weather = await Weather.findByIdAndUpdate(req.params.id, req.body);
-        res.status(200).json({ message: 'Weather data updated successfully', weather });
-    } catch (error) {
-        next(new ErrorHandler('Server error', 500));
-    }
-};
-
-// Update precipitation value => PUT /api/weather/:id/precipitation
-export const updatePrecipitation = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { precipitation } = req.body;
-        const weather = await Weather.findByIdAndUpdate(id, { precipitation }, { new: true });
-        res.status(200).json({ message: 'Precipitation updated successfully', weather });
-    } catch (error) {
-        next(new ErrorHandler('Server error', 500));
-    }
-};
-
-// Delete weather data => DELETE /api/weather/:id
-export const deleteWeatherData = async (req, res) => {
-    try {
-        const weather = await Weather.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: 'Weather data deleted successfully', weather });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-}
-
 // Get weather data by temperature and humidity => GET /api/weather/temperature-humidity
 export const getWeatherByTemperatureAndHumidity = async (req, res, next) => {
     try {
@@ -246,3 +217,41 @@ export const getWeatherByTemperatureAndHumidity = async (req, res, next) => {
     }
 };
 
+// Update precipitation value => PUT /api/weather/:id
+export const updatePrecipitation = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { precipitation } = req.body;
+
+        if (precipitation === undefined) {
+            return next(new ErrorHandler('Precipitation value is required', 400));
+        }
+
+        const updatedWeather = await Weather.findByIdAndUpdate(
+            id,
+            { 'Precipitation mm/h': precipitation },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedWeather) {
+            return next(new ErrorHandler('Weather data not found', 404));
+        }
+
+        res.status(200).json({
+            success: true,
+            data: updatedWeather
+        });
+    } catch (error) {
+        next(new ErrorHandler('Server error', 500));
+    }
+};
+
+// Delete weather data => DELETE /api/weather/:id
+export const deleteWeatherData = async (req, res) => {
+    try {
+        const weather = await Weather.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Weather data deleted successfully', weather });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
