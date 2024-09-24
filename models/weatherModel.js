@@ -11,7 +11,7 @@ const weatherSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Precipitation is required'],
     double: true,
-    alias: 'Precipitation (mm/h)'
+    alias: 'Precipitation mm/h'
   },
   time: {
     type: Date,

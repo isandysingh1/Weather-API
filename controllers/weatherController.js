@@ -218,31 +218,52 @@ export const getWeatherByTemperatureAndHumidity = async (req, res, next) => {
 };
 
 // Update precipitation value => PUT /api/weather/:id
-export const updatePrecipitation = async (req, res, next) => {
+export const updatePrecipitation = async (req, res) => {
     try {
         const { id } = req.params;
-        const { precipitation } = req.body;
+        const { precipitation } = req.body; // Get the precipitation value from the request body
 
-        if (precipitation === undefined) {
-            return next(new ErrorHandler('Precipitation value is required', 400));
+        // Log request body for debugging
+        console.log('Request body:', req.body);
+
+        // Check if precipitation is provided
+        if (precipitation === undefined || precipitation === null) {
+            return res.status(400).json({
+                success: false,
+                message: 'Precipitation value is required'
+            });
         }
 
+        // Find and update the document using the correct field name
         const updatedWeather = await Weather.findByIdAndUpdate(
-            id,
-            { 'Precipitation mm/h': precipitation },
-            { new: true, runValidators: true }
+            id, 
+            { $set: { 'precipitation': precipitation } },  // Correct alias used here
+            { new: true }
         );
 
+        // If document is not found
         if (!updatedWeather) {
-            return next(new ErrorHandler('Weather data not found', 404));
+            return res.status(404).json({
+                success: false,
+                message: 'Weather data not found'
+            });
         }
 
+        // Log the updated weather data
+        console.log('Updated weather data:', updatedWeather);
+
+        // Respond with the updated document
         res.status(200).json({
             success: true,
+            message: 'Precipitation value updated successfully',
             data: updatedWeather
         });
     } catch (error) {
-        next(new ErrorHandler('Server error', 500));
+        console.error('Error updating precipitation:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
     }
 };
 
