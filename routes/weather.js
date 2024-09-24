@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { getWeatherById, insertWeatherData, insertMultipleWeatherData, updateWeatherData, deleteWeatherData, getWeatherByStationAndDateTime, getMaxTemperature, updatePrecipitation, getMaxPrecipitation, getWeatherByTemperatureAndHumidity } from '../controllers/weatherController.js';
+import { getWeatherById, insertWeatherData, insertMultipleWeatherData, updatePrecipitation, deleteWeatherData, getWeatherByStationAndDateTime, getMaxTemperature, getMaxPrecipitation, getWeatherByTemperatureAndHumidity } from '../controllers/weatherController.js';
 
 
 // Specific routes with more parameters
@@ -11,8 +11,7 @@ router.route('/weather/temperature-humidity').get(getWeatherByTemperatureAndHumi
 
 // Routes with :id parameter
 router.route('/weather/:id').get(getWeatherById);
-router.route('/weather/:id').put(updateWeatherData);
-router.route('/weather/:id/precipitation').put(updatePrecipitation);
+router.route('/weather/:id').put(updatePrecipitation);
 router.route('/weather/:id').delete(deleteWeatherData);
 
 // Data insertion routes
