@@ -14,11 +14,11 @@ connectDB();
 app.use(express.json());
 
 // import routes
-// import usersRoutes from './routes/users.js';
+import usersRoutes from './routes/users.js';
 import weatherRoutes from './routes/weather.js';
 
 // Routes
-// app.use('/api/users', usersRoutes);
+app.use('/api', usersRoutes);
 app.use('/api', weatherRoutes);
 
 // Error Middleware
