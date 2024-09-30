@@ -5,26 +5,126 @@ import ErrorHandler from '../utils/errorHandler.js';
 // Insert weather data => POST /api/weather
 export const insertWeatherData = async (req, res, next) => {
     try {
-        const { deviceName, precipitation, time, latitude, longitude, temperature, atmosphericPressure, maxWindSpeed, solarRadiation, vaporPressure, humidity, windDirection } = req.body;
+        const {
+            "Device Name": deviceName,
+            "Precipitation mm/h": precipitation,
+            "Time": time,
+            "Latitude": latitude,
+            "Longitude": longitude,
+            "Temperature (°C)": temperature,
+            "Atmospheric Pressure (kPa)": atmosphericPressure,
+            "Max Wind Speed (m/s)": maxWindSpeed,
+            "Solar Radiation (W/m2)": solarRadiation,
+            "Vapor Pressure (kPa)": vaporPressure,
+            "Humidity (%)": humidity,
+            "Wind Direction (°)": windDirection
+        } = req.body;
+
+        // Validate the required fields
         if (!deviceName || !precipitation || !time || !latitude || !longitude || !temperature || !atmosphericPressure || !maxWindSpeed || !solarRadiation || !vaporPressure || !humidity || !windDirection) {
             return next(new ErrorHandler('Missing fields Required', 400));
         }
-        const weather = await Weather.create(req.body);
-        res.status(200).json({ message: 'SingleWeather data inserted successfully', weather });
+
+        // Insert weather data
+        const weather = await Weather.create({
+            "Device Name": deviceName,
+            "Precipitation mm/h": precipitation,
+            "Time": time,
+            "Latitude": latitude,
+            "Longitude": longitude,
+            "Temperature (°C)": temperature,
+            "Atmospheric Pressure (kPa)": atmosphericPressure,
+            "Max Wind Speed (m/s)": maxWindSpeed,
+            "Solar Radiation (W/m2)": solarRadiation,
+            "Vapor Pressure (kPa)": vaporPressure,
+            "Humidity (%)": humidity,
+            "Wind Direction (°)": windDirection
+        });
+
+        res.status(200).json({ message: 'Single Weather data inserted successfully', weather });
     } catch (error) {
+        console.error('Error occurred:', error); // Log the error for debugging
         next(new ErrorHandler('Server error', 500));
     }
 }
 
+
 // Insert multiple weather data => POST /api/weather/multiple
 export const insertMultipleWeatherData = async (req, res, next) => {
     try {
-        const weather = await Weather.insertMany(req.body);
-        res.status(200).json({ message: 'Multiple Weather data inserted successfully', weather });
-    } catch (error) {
-        next(new ErrorHandler('Server error', 500));
+        const weatherDataArray = req.body;
+    
+            // Validate if the request body is an array
+            if (!Array.isArray(weatherDataArray) || weatherDataArray.length === 0) {
+                return next(new ErrorHandler('Request body must be a non-empty array of weather data', 400));
+            }
+    
+            // Validate each weather data entry
+            for (const weatherData of weatherDataArray) {
+                const {
+                    "Device Name": deviceName,
+                    "Precipitation mm/h": precipitation,
+                    "Time": time,
+                    "Latitude": latitude,
+                    "Longitude": longitude,
+                    "Temperature (°C)": temperature,
+                    "Atmospheric Pressure (kPa)": atmosphericPressure,
+                    "Max Wind Speed (m/s)": maxWindSpeed,
+                    "Solar Radiation (W/m2)": solarRadiation,
+                    "Vapor Pressure (kPa)": vaporPressure,
+                    "Humidity (%)": humidity,
+                    "Wind Direction (°)": windDirection
+                } = weatherData;
+    
+                if (!deviceName || !precipitation || !time || !latitude || !longitude || !temperature || !atmosphericPressure || !maxWindSpeed || !solarRadiation || !vaporPressure || !humidity || !windDirection) {
+                    return next(new ErrorHandler('Missing fields in one or more weather data entries', 400));
+                }
+            }
+    
+            // Insert multiple weather data entries
+            const weatherRecords = await Weather.insertMany(weatherDataArray);
+    
+            res.status(200).json({ message: `${weatherRecords.length} Weather records inserted successfully`, weatherRecords });
+        } catch (error) {
+            console.error('Error occurred:', error); // Log the error for debugging
+            next(new ErrorHandler('Server error', 500));
     }
 }
+
+// Update precipitation value by ID => PUT /api/weather/:id/precipitation
+export const updatePrecipitation = async (req, res, next) => {
+    try {
+        const { id } = req.params;  // Get the ID from the request parameters
+        const { "Precipitation mm/h": precipitation } = req.body;  // Get new precipitation value from the request body
+
+        // Validate that precipitation value is provided
+        if (precipitation === undefined || precipitation === null) {
+            return next(new ErrorHandler('Precipitation value is required', 400));
+        }
+
+
+        // Update the precipitation value in the database
+        const updatedWeather = await Weather.findByIdAndUpdate(
+            id,
+            { "Precipitation mm/h": precipitation },
+            { new: true, runValidators: true }  // Return the updated document and validate it
+        );
+
+        // If no weather entry is found
+        if (!updatedWeather) {
+            return next(new ErrorHandler('Weather entry not found', 404));
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Precipitation updated successfully',
+            weather: updatedWeather
+        });
+    } catch (error) {
+        console.error('Error occurred:', error);
+        next(new ErrorHandler('Server error', 500));
+    }
+};
 
 
 // Get weather by id => GET /api/weather/:id
@@ -61,7 +161,6 @@ export const getMaxPrecipitation = async (req, res, next) => {
             'Time': 1 
         })
         .lean();
-        console.log(maxPrecipitationRecord);
 
         // If no data found, return a 404 error
         if (!maxPrecipitationRecord) {
@@ -151,7 +250,7 @@ export const getWeatherByStationAndDateTime = async (req, res, next) => {
             'Temperature (C)': 1,
             'Atmospheric Pressure (kPa)': 1,
             'Solar Radiation (W/m2)': 1,
-            'Precipitation (mm/h)': 1,
+            'Precipitation mm/h': 1,
             'Vapor Pressure (kPa)': 1,
             'Humidity (%)': 1,
             'Max Wind Speed (m/s)': 1,
@@ -190,18 +289,17 @@ export const getWeatherByTemperatureAndHumidity = async (req, res, next) => {
 
         // Querying the database using indexes
         const results = await Weather.find({
-            time: { $gte: start, $lte: end }
+            'Time': { $gte: start, $lte: end }
         })
         .select({ 
-            'deviceName': 1, 
-            'temperature': 1, 
-            'humidity': 1, 
-            'precipitation': 1, 
-            'time': 1 
+            'Device Name': 1, 
+            'Temperature (°C)': 1, 
+            'Humidity (%)': 1, 
+            'Precipitation mm/h': 1, 
+            'Time': 1 
         })
         .exec();
 
-        console.log(results);
 
         if (results.length === 0) {
             return next(new ErrorHandler('No data found for the specified date range', 404));
@@ -226,37 +324,3 @@ export const deleteWeatherData = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 }
-
-// Update precipitation value by ID => PUT /api/weather/:id/precipitation
-export const updatePrecipitation = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { precipitation } = req.body;
-
-        console.log(`Updating precipitation for ID: ${id} with value: ${precipitation}`);
-
-        if (precipitation === undefined) {
-            return next(new ErrorHandler('Precipitation value is required', 400));
-        }
-
-        const updatedWeather = await Weather.findByIdAndUpdate(
-            id,
-            { $set: { precipitation: precipitation } },
-            { new: true, runValidators: true }
-        );
-        console.log(updatedWeather);
-
-        if (!updatedWeather) {
-            return next(new ErrorHandler('Weather data not found', 404));
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'Precipitation updated successfully',
-            data: updatedWeather
-        });
-    } catch (error) {
-        console.error('Error updating precipitation:', error);
-        next(new ErrorHandler('Server error', 500));
-    }
-};

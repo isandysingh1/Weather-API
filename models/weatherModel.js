@@ -2,35 +2,30 @@ import mongoose from 'mongoose';
 
 // Define the weather data schema
 const weatherSchema = new mongoose.Schema({
-  deviceName: {
+  "Device Name": {
     type: String,
     required: [true, 'Device name is required'],
-    alias: 'Device Name'
   },
-  precipitation: {
+  "Precipitation mm/h": {
     type: Number,
     required: [true, 'Precipitation is required'],
     double: true,
-    alias: 'Precipitation mm/h'
   },
-  time: {
+  "Time": {
     type: Date,
     required: [true, 'Time is required'],
-    alias: 'Time'
   },
-  latitude: {
+  "Latitude": {
     type: Number,
     required: [true, 'Latitude is required'],
     double: true,
-    alias: 'Latitude'
   },
-  longitude: {
+  "Longitude": {
     type: Number,
     required: [true, 'Longitude is required'],
     double: true,
-    alias: 'Longitude'
   },
-  temperature: {
+  "Temperature (°C)": {
     type: Number,
     required: [true, 'Temperature is required'],
     double: true,
@@ -40,32 +35,27 @@ const weatherSchema = new mongoose.Schema({
       },
       message: 'Temperature must be between -50°C and 60°C.'
     },
-    alias: 'Temperature (°C)'
   },
-  atmosphericPressure: {
+  "Atmospheric Pressure (kPa)": {
     type: Number,
     required: [true, 'Atmospheric pressure is required'],
     double: true,
-    alias: 'Atmospheric Pressure (kPa)'
   },
-  maxWindSpeed: {
+  "Max Wind Speed (m/s)": {
     type: Number,
     required: [true, 'Maximum wind speed is required'],
     double: true,
-    alias: 'Max Wind Speed (m/s)'
   },
-  solarRadiation: {
+  "Solar Radiation (W/m2)": {
     type: Number,
     required: [true, 'Solar radiation is required'],
-    alias: 'Solar Radiation (W/m2)'
   },
-  vaporPressure: {
+  "Vapor Pressure (kPa)": {
     type: Number,
     required: [true, 'Vapor pressure is required'],
     double: true,
-    alias: 'Vapor Pressure (kPa)'
   },
-  humidity: {
+  "Humidity (%)": {
     type: Number,
     required: [true, 'Humidity is required'],
     double: true,
@@ -75,20 +65,18 @@ const weatherSchema = new mongoose.Schema({
       },
       message: 'Humidity must be between 0 and 100'
     },
-    alias: 'Humidity (%)'
   },
-  windDirection: {
+  "Wind Direction (°)": {
     type: Number,
     required: [true, 'Wind direction is required'],
     double: true,
-    alias: 'Wind Direction (°)'
   }
 }, { collection: 'weatherData' });
 
 // Index
-weatherSchema.index({ temperature: 1, time: 1 });
-weatherSchema.index({ humidity: 1, precipitation: 1, time: 1 });
-weatherSchema.index({ deviceName: 1, time: 1 });
+weatherSchema.index({ "Temperature (°C)": 1, "Time": 1 });
+weatherSchema.index({ "Humidity (%)": 1, "Precipitation mm/h": 1, "Time": 1 });
+weatherSchema.index({ "Device Name": 1, "Time": 1 });
 
 // Create the Weather model using the schema
 const Weather = mongoose.model('Weather', weatherSchema);

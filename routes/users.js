@@ -12,4 +12,5 @@ router.route('/users/:id').get(getUserById).put(updateUserById);
 router.route('/users/deleteStudents').delete(deleteStudents);
 router.route('/users/:id').delete(deleteUserById);
 router.route('/users/updateRole').put(updateRole);
+
 export default router;
