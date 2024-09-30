@@ -1,5 +1,6 @@
 import User from '../models/userModel.js';
 import ErrorHandler from '../utils/errorHandler.js';
+import { sendToken } from '../utils/sendToken.js';
 
 // Create a new user => /api/register
 export const createUser = async (req, res, next) => {
@@ -13,15 +14,9 @@ export const createUser = async (req, res, next) => {
             role
         });
 
-        const token = user.generateToken();
+        sendToken(user, 201, res);
 
-        res.status(201).json({
-            success: true,
-            message: 'User created successfully',
-            user,
-            token
-        });
-    } catch (error) {
+        } catch (error) {
         next(error);
     }
 
@@ -49,16 +44,10 @@ export const loginUser = async (req, res, next) => {
             return next(new ErrorHandler('Invalid email or password', 401));
         }
 
-        const token = user.generateToken();
+        sendToken(user, 200, res);
 
         await user.updateLastLogin();
 
-        res.status(200).json({
-            success: true,
-            message: 'User logged in successfully',
-            token
-        });
-        
     } catch (error) {
         next(error);
     }
