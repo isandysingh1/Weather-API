@@ -2,6 +2,7 @@ import express from 'express';
 import connectDB from './config/db.js';
 import dotenv from 'dotenv';
 import errorMiddleware from './middleware/errors.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config({ path: './config/config.env' });
 
@@ -12,7 +13,7 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-
+app.use(cookieParser());
 // import routes
 import usersRoutes from './routes/users.js';
 import weatherRoutes from './routes/weather.js';

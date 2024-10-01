@@ -175,3 +175,16 @@ export const updateRole = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 }
+
+// Logout user => /api/logout
+export const logoutUser = async (req, res, next) => {
+    try {
+        res.clearCookie('token');
+        res.status(200).json({
+            success: true,
+            message: 'User logged out successfully'
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+}
