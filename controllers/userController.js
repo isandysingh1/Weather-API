@@ -1,6 +1,7 @@
 import User from '../models/userModel.js';
 import ErrorHandler from '../utils/errorHandler.js';
 import { sendToken } from '../utils/sendToken.js';
+import bcrypt from 'bcrypt';
 
 // Create a new user => /api/register
 export const createUser = async (req, res, next) => {
@@ -88,6 +89,13 @@ export const getUserById = async (req, res, next) => {
 export const updateUserById = async (req, res, next) => {
     try {
         const updates = req.body;
+
+          // Check if the password is being updated
+          if (updates.password) {
+            // Hash the password before updating
+            const salt = await bcrypt.genSalt(10);
+            updates.password = await bcrypt.hash(updates.password, salt);
+        }
         const user = await User.findByIdAndUpdate(req.params.id, updates, {
             new: true,
             runValidators: true

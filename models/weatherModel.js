@@ -29,12 +29,6 @@ const weatherSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Temperature is required'],
     double: true,
-    validate: {
-      validator: function(value) {
-        return value >= -50 && value <= 60;
-      },
-      message: 'Temperature must be between -50°C and 60°C.'
-    },
   },
   "Atmospheric Pressure (kPa)": {
     type: Number,
@@ -59,12 +53,6 @@ const weatherSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Humidity is required'],
     double: true,
-    validate: {
-      validator: function(value) {
-        return value >= 0 && value <= 100;
-      },
-      message: 'Humidity must be between 0 and 100'
-    },
   },
   "Wind Direction (°)": {
     type: Number,

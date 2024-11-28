@@ -298,6 +298,8 @@ export const getWeatherByTemperatureAndHumidity = async (req, res, next) => {
             'Precipitation mm/h': 1, 
             'Time': 1 
         })
+        .sort({ 'Time': 1 })
+        .limit(10)
         .exec();
 
 

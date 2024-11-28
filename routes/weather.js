@@ -4,20 +4,32 @@ import { getWeatherById, insertWeatherData, insertMultipleWeatherData, deleteWea
 import { isAuthenticated, authorizeRoles } from '../middleware/auth.js';
 
 
-// Specific routes with more parameters
-router.route('/weather/max-temperature').get(getMaxTemperature);
-router.route('/weather/:deviceName/max-precipitation').get(getMaxPrecipitation);
-router.route('/weather/:deviceName/:time').get(getWeatherByStationAndDateTime);
-router.route('/weather/temperature-humidity').get(getWeatherByTemperatureAndHumidity);
+
+router.route('/weather/max-temperature').get(isAuthenticated, authorizeRoles('Admin', 'Teacher', 'Student'), getMaxTemperature);
+
+
+router.route('/weather/:deviceName/max-precipitation').get(isAuthenticated, authorizeRoles('Admin', 'Teacher', 'Student'), getMaxPrecipitation);
+
+
+router.route('/weather/:deviceName/:time').get(isAuthenticated, authorizeRoles('Admin', 'Teacher', 'Student'), getWeatherByStationAndDateTime);
+
+
+router.route('/weather/temperature-humidity').get(isAuthenticated, authorizeRoles('Admin', 'Teacher', 'Student'), getWeatherByTemperatureAndHumidity);
 
 // Routes with :id parameter
-router.route('/weather/:id').get(getWeatherById);
-router.route('/weather/:id').delete(isAuthenticated, authorizeRoles('admin', 'teacher'), deleteWeatherData);
-router.route('/weather/:id/precipitation').put(isAuthenticated, authorizeRoles('admin', 'teacher'), updatePrecipitation);
+
+router.route('/weather/:id').get(isAuthenticated, authorizeRoles('Admin', 'Teacher', 'Student'), getWeatherById);
+
+
+router.route('/weather/:id').delete(isAuthenticated, authorizeRoles('Admin', 'Teacher'), deleteWeatherData);
+
+router.route('/weather/:id/precipitation').put(isAuthenticated, authorizeRoles('Admin', 'Teacher'), updatePrecipitation);
 
 // Data insertion routes
-router.route('/weather').post(isAuthenticated, authorizeRoles('sensor'), insertWeatherData);
-router.route('/weather/multiple').post(isAuthenticated, authorizeRoles('sensor'), insertMultipleWeatherData);
+
+router.route('/weather').post(insertWeatherData);
+
+router.route('/weather/multiple').post(isAuthenticated, authorizeRoles('Admin', 'Sensor'), insertMultipleWeatherData);
 
 
 
