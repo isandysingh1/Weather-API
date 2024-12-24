@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
     lastLogin: {
         type: Date,
         default: Date.now,
+        index: true
     },
     createdAt: {
         type: Date,
@@ -79,6 +80,8 @@ userSchema.pre('save', async function (next) {
     cutoffDate.setDate(cutoffDate.getDate() - 30); // 30 days inactivity threshold
     return this.deleteMany({ role: 'Student', lastLogin: { $lte: cutoffDate } });
   };
+
+  userSchema.index({ lastLogin: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
   
   // Create and export the model
   const User = mongoose.model('User', userSchema);
